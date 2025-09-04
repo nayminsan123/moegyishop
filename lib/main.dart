@@ -3,12 +3,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'services/auth_service.dart';
 import 'screens/auth/login_screen.dart';
-import 'screens/auth/signup_screen.dart';
+import 'screens/auth/signup_screen_with_map.dart'; // Changed to signup_screen_with_map.dart
 import 'screens/product/product_list_screen.dart';
 import 'screens/product/product_detail_screen.dart';
 import 'screens/cart/cart_screen.dart';
 import 'screens/checkout/checkout_screen.dart';
-import 'screens/admin/admin_panel_screen.dart';
+import 'screens/admin/admin_panel_screen.dart'; // Corrected import
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,12 +44,12 @@ class MoegyishopApp extends StatelessWidget {
       ),
       routes: {
         '/login': (context) => LoginScreen(),
-        '/signup': (context) => SignupScreen(),
+        '/signup': (context) => SignupScreenWithMap(), // Changed to SignupScreenWithMap()
         '/products': (context) => ProductListScreen(),
         '/product_detail': (context) => ProductDetailScreen(),
         '/cart': (context) => CartScreen(),
         '/checkout': (context) => CheckoutScreen(),
-        '/admin': (context) => AdminPanelScreen(),
+        '/admin': (context) => const AdminPanelScreen(), // Corrected to AdminPanelScreen()
       },
     );
   }

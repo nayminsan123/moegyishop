@@ -1,5 +1,7 @@
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -11,8 +13,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailCtrl = TextEditingController();
-  final _passwordCtrl = TextEditingController();
+  final _loginController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _loading = false;
 
   final AuthService _authService = AuthService();
@@ -22,16 +24,41 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _loading = true);
 
     try {
+      String email;
+      final loginInput = _loginController.text.trim();
+      if (loginInput.contains('@')) {
+        email = loginInput;
+      } else {
+        final usersQuery = await FirebaseFirestore.instance
+            .collection('users')
+            .where('username', isEqualTo: loginInput)
+            .limit(1)
+            .get();
+        if (usersQuery.docs.isEmpty) {
+          throw FirebaseAuthException(code: 'user-not-found');
+        }
+        email = usersQuery.docs.first.data()['email'];
+      }
+
       final user = await _authService.signIn(
-        email: _emailCtrl.text.trim(),
-        password: _passwordCtrl.text,
+        email: email,
+        password: _passwordController.text,
         requireEmailVerified: false, // change to true if you want to enforce verification
       );
 
-      // On success navigate to products
       if (user != null) {
         if (!mounted) return;
-        Navigator.pushReplacementNamed(context, '/products');
+
+        // Fetch user role from Firestore
+        final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+        final userData = userDoc.data();
+        final role = userData?['role'];
+
+        if (role == 'admin') {
+          Navigator.pushReplacementNamed(context, '/admin');
+        } else {
+          Navigator.pushReplacementNamed(context, '/products');
+        }
       }
     } on FirebaseAuthException catch (e) {
       String message = e.message ?? 'Authentication error';
@@ -56,8 +83,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _emailCtrl.dispose();
-    _passwordCtrl.dispose();
+    _loginController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -76,18 +103,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextFormField(
-                    controller: _emailCtrl,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Email'),
+                    controller: _loginController,
+                    decoration: const InputDecoration(labelText: 'Email or Username'),
                     validator: (v) {
-                      if (v == null || v.isEmpty) return 'Email ထည့်ပါ';
-                      if (!v.contains('@')) return 'အမှန်တကယ် Email ဖြင့်ဖြည့်ပါ';
+                      if (v == null || v.isEmpty) return 'Email or Username ထည့်ပါ';
                       return null;
                     },
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
-                    controller: _passwordCtrl,
+                    controller: _passwordController,
                     obscureText: true,
                     decoration: const InputDecoration(labelText: 'Password'),
                     validator: (v) {
@@ -112,10 +137,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextButton(
                     onPressed: () async {
                       final scaffoldMessenger = ScaffoldMessenger.of(context);
-                      final email = _emailCtrl.text.trim();
+                      final email = _loginController.text.trim();
                       if (email.isEmpty) {
                         scaffoldMessenger.showSnackBar(
                           const SnackBar(content: Text('Email ထည့်ပါ')),
+                        );
+                        return;
+                      }
+                       if (!email.contains('@')) {
+                         scaffoldMessenger.showSnackBar(
+                          const SnackBar(content: Text('Please enter a valid email to reset password')),
                         );
                         return;
                       }
