@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ProductListScreen extends StatelessWidget {
+  const ProductListScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Normally, you'd query Firebase for products.

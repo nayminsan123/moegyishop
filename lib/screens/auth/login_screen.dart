@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -30,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // On success navigate to products
       if (user != null) {
+        if (!mounted) return;
         Navigator.pushReplacementNamed(context, '/products');
       }
     } on FirebaseAuthException catch (e) {
@@ -39,10 +40,12 @@ class _LoginScreenState extends State<LoginScreen> {
       if (e.code == 'email-not-verified') {
         message = 'Email မသိမ်းဆည်းထားသေးပါ။ ကျေးဇူးပြု၍ အီးမေးလ်ကို စစ်ဆေးပြီး verify လုပ်ပါ။';
       }
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message)),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('အမှားတစ်ခု ဖြစ်ပါသည်: $e')),
       );
@@ -108,20 +111,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   TextButton(
                     onPressed: () async {
+                      final scaffoldMessenger = ScaffoldMessenger.of(context);
                       final email = _emailCtrl.text.trim();
                       if (email.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        scaffoldMessenger.showSnackBar(
                           const SnackBar(content: Text('Email ထည့်ပါ')),
                         );
                         return;
                       }
                       try {
                         await _authService.sendPasswordReset(email: email);
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        scaffoldMessenger.showSnackBar(
                           const SnackBar(content: Text('Password reset email ပို့ပြီးပါပြီ')),
                         );
                       } on FirebaseAuthException catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        scaffoldMessenger.showSnackBar(
                           SnackBar(content: Text(e.message ?? 'Error sending reset email')),
                         );
                       }

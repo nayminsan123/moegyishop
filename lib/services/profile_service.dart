@@ -6,7 +6,11 @@ class ProfileService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  CollectionReference get _usersCol => _firestore.collection('users');
+  CollectionReference<Map<String, dynamic>> get _usersCol =>
+      _firestore.collection('users').withConverter<Map<String, dynamic>>(
+            fromFirestore: (snapshot, _) => snapshot.data()!,
+            toFirestore: (data, _) => data,
+          );
 
   // Stream user document for realtime updates
   Stream<DocumentSnapshot<Map<String, dynamic>>> userDocStream(String uid) {
@@ -62,7 +66,7 @@ class ProfileService {
     required File file,
   }) async {
     final ref = _storage.ref().child('avatars').child('$uid.jpg');
-    final uploadTask = await ref.putFile(file);
+    await ref.putFile(file);
     final url = await ref.getDownloadURL();
     await _usersCol.doc(uid).set({
       'avatarUrl': url,

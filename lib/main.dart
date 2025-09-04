@@ -17,7 +17,7 @@ void main() async {
 }
 
 class MoegyishopApp extends StatelessWidget {
-  const MoegyishopApp({Key? key}) : super(key: key);
+  const MoegyishopApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,21 +35,21 @@ class MoegyishopApp extends StatelessWidget {
           final user = snapshot.data;
           if (user != null) {
             // User signed in
-            return const ProductListScreen();
+            return ProductListScreen();
           } else {
             // Not signed in
-            return const LoginScreen();
+            return LoginScreen();
           }
         },
       ),
       routes: {
-        '/login': (context) => const LoginScreen(),
-        '/signup': (context) => const SignupScreen(),
-        '/products': (context) => const ProductListScreen(),
-        '/product_detail': (context) => const ProductDetailScreen(),
-        '/cart': (context) => const CartScreen(),
-        '/checkout': (context) => const CheckoutScreen(),
-        '/admin': (context) => const AdminPanelScreen(),
+        '/login': (context) => LoginScreen(),
+        '/signup': (context) => SignupScreen(),
+        '/products': (context) => ProductListScreen(),
+        '/product_detail': (context) => ProductDetailScreen(),
+        '/cart': (context) => CartScreen(),
+        '/checkout': (context) => CheckoutScreen(),
+        '/admin': (context) => AdminPanelScreen(),
       },
     );
   }

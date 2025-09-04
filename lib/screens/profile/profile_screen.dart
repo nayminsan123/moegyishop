@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/profile_service.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   Widget _buildAvatar(String? url, double size) {
     if (url != null && url.isNotEmpty) {
@@ -33,6 +33,7 @@ class ProfileScreen extends StatelessWidget {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
+              // ignore: use_build_context_synchronously
               Navigator.pushNamedAndRemoveUntil(context, '/login', (r) => false);
             },
             tooltip: 'Sign out',

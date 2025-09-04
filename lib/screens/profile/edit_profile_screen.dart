@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../services/profile_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({Key? key}) : super(key: key);
+  const EditProfileScreen({super.key});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -84,7 +84,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final newEmail = _emailCtrl.text.trim();
       if (newEmail.isNotEmpty && newEmail != user.email) {
         // For security, Firebase may require recent login. Caller should handle re-auth if needed.
-        await user.updateEmail(newEmail);
+        await user.verifyBeforeUpdateEmail(newEmail);
         // Optionally send email verification:
         await user.sendEmailVerification();
       }
@@ -115,10 +115,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         },
       );
 
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated')));
+      if (!mounted) return;
       Navigator.pop(context);
     } on Exception catch (e) {
       // Common errors: requires-recent-login for sensitive operations
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -140,8 +143,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
-    // we could use args['openCredentialsTab'] to focus email/password fields if desired
 
     return Scaffold(
       appBar: AppBar(title: const Text('Edit Profile')),

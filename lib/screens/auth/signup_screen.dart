@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/auth_service.dart';
 
 class SignupScreen extends StatefulWidget {
-  const SignupScreen({Key? key}) : super(key: key);
+  const SignupScreen({super.key});
 
   @override
   State<SignupScreen> createState() => _SignupScreenState();
@@ -23,27 +23,31 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() => _loading = true);
 
     try {
-      final user = await _authService.signUp(
+      await _authService.signUp(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
         displayName: _displayNameCtrl.text.trim(),
       );
 
       // After signup, notify user to verify email
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Sign up success. အီးမေးလ်ကို verify လုပ်ပါ။')),
       );
 
       // Optionally navigate to login
+      if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/login');
     } on FirebaseAuthException catch (e) {
       String message = e.message ?? 'Sign up error';
       if (e.code == 'email-already-in-use') message = 'ဤ Email ဖြင့် အကောင့်ရှိပြီးသားဖြစ်သည်';
       if (e.code == 'weak-password') message = 'Password ကို ပိုမိုခိုင်မာအောင် ရေးပါ';
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message)),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('အမှားတစ်ခု ဖြစ်ပါသည်: $e')),
       );
