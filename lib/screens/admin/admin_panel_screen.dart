@@ -41,10 +41,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       }
       _userData = doc.data();
       if (_userData!['role'] != 'admin') {
+        if (!mounted) return;
         Navigator.of(context).pushReplacementNamed('/products'); // or some other non-admin page
       }
     } catch (e) {
-      print(e);
+      if (!mounted) return;
       Navigator.of(context).pushReplacementNamed('/login');
     } finally {
       if(mounted) setState(() => _isLoading = false);

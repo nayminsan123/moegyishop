@@ -10,10 +10,10 @@ class SignupScreenWithMap extends StatefulWidget {
   const SignupScreenWithMap({super.key});
 
   @override
-  _SignupScreenWithMapState createState() => _SignupScreenWithMapState();
+  SignupScreenWithMapState createState() => SignupScreenWithMapState();
 }
 
-class _SignupScreenWithMapState extends State<SignupScreenWithMap> {
+class SignupScreenWithMapState extends State<SignupScreenWithMap> {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -98,7 +98,7 @@ class _SignupScreenWithMapState extends State<SignupScreenWithMap> {
             '${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}';
       });
     } catch (e) {
-      print(e);
+      // handle error
     }
   }
 
@@ -133,8 +133,10 @@ class _SignupScreenWithMapState extends State<SignupScreenWithMap> {
           'role': role,
         });
 
+        if (!mounted) return;
         Navigator.of(context).pushReplacementNamed('/products');
       } on FirebaseAuthException catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text(e.message ?? 'Signup failed')));
       } finally {

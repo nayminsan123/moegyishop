@@ -47,13 +47,12 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (user != null) {
-        if (!mounted) return;
-
         // Fetch user role from Firestore
         final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
         final userData = userDoc.data();
         final role = userData?['role'];
 
+        if (!mounted) return;
         if (role == 'admin') {
           Navigator.pushReplacementNamed(context, '/admin');
         } else {
