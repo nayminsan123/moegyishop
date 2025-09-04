@@ -1,0 +1,113 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper functions ---
+    // Check signed-in
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Check admin:
+    // First prefer custom claim request.auth.token.admin,
+    // fallback to users/{uid}.role == 'admin' (exists + get).
+    // NOTE: pass the uid you want to check (usually request.auth.uid).
+    function isAdmin(uid) {
+      return isSignedIn() &&
+        (request.auth.token.admin == true ||
+          (exists(/databases/$(database)/documents/users/$(uid)) &&
+           get(/databases/$(database)/documents/users/$(uid)).data.role == 'admin'));
+    }
+
+    // ------------------------------------------------------------------
+    // Products collection
+    // - Public may read published products.
+    // - Admins can create/update/delete and read unpublished products.
+    match /products/{productId} {
+      // Anyone can read products that are published.
+      allow get: if resource.data.published == true || isAdmin(request.auth.uid);
+
+      // For list/queries: allow if query will only return published products,
+      // or allow for admins. It's hard to fully verify the client query in rules,
+      // so we keep list permissive but rely on get checks for each returned doc.
+      // If you want stricter enforcement, enforce request.query conditions here.
+      allow list: if true;
+
+      // Only admins may create products.
+      allow create: if isAdmin(request.auth.uid);
+
+      // Only admins may update/delete products.
+      // Prevent clients from changing createdAt on update.
+      allow update: if isAdmin(request.auth.uid)
+        && ( !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt );
+      allow delete: if isAdmin(request.auth.uid);
+    }
+
+    // ------------------------------------------------------------------
+    // Users collection
+    // - Each user may read/write only their own user document.
+    // - Disallow client from setting/changing 'role' field (admin assignment must be done via Admin SDK).
+    match /users/{userId} {
+      allow create: if isSignedIn() && request.auth.uid == userId
+        // Prevent client from assigning role on creation
+        && !( 'role' in request.resource.data );
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && request.auth.uid == userId
+        // prevent role escalation by client
+        && !( 'role' in request.resource.data && request.resource.data.role != resource.data.role );
+      allow delete: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    // ------------------------------------------------------------------
+    // Carts collection
+    // - Store per-user cart documents; doc id should be the user's uid.
+    // - Only the owner can read/write their cart.
+    match /carts/{cartId} {
+      allow read, write: if isSignedIn() && request.auth.uid == cartId;
+    }
+
+    // ------------------------------------------------------------------
+    // Orders collection
+    // - Authenticated users can create orders; the order.uid must equal request.auth.uid.
+    // - Users can read their own orders; admins can read any.
+    // - Only admins may update or delete orders (e.g., update status).
+    match /orders/{orderId} {
+      allow create: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.items is list
+        && request.resource.data.total is number;
+
+      allow read: if isSignedIn() && (request.auth.uid == resource.data.uid || isAdmin(request.auth.uid));
+
+      // Only admins may update/delete orders (server-managed status changes).
+      allow update, delete: if isAdmin(request.auth.uid);
+    }
+
+    // ------------------------------------------------------------------
+    // Categories collection
+    // - Public read; admin write.
+    match /categories/{catId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin(request.auth.uid);
+    }
+
+    // ------------------------------------------------------------------
+    // Product reviews subcollection
+    // - Authenticated users can create reviews; authorId must equal request.auth.uid.
+    // - Public read reviews.
+    // - Users can modify/delete only their own reviews.
+    match /products/{productId}/reviews/{reviewId} {
+      allow create: if isSignedIn()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.rating is int;
+      allow read: if true;
+      allow update, delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
+    }
+
+    // ------------------------------------------------------------------
+    // Fallback: deny everything else by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

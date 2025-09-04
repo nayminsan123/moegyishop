@@ -1,0 +1,24 @@
+name: moegyishop
+description: An online e-commerce shopping app
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.18.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^2.32.0
+  firebase_auth: ^4.10.0
+  cloud_firestore: ^4.10.0
+  provider: ^6.0.5
+  firebase_app_check: ^0.2.2
+  image_picker: ^1.2.0
+  
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

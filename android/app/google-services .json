@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "271385741888",
+    "project_id": "moegyishop-820a2",
+    "storage_bucket": "moegyishop-820a2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:271385741888:android:9df176ba321249c20b6da5",
+        "android_client_info": {
+          "package_name": "com.example.moegyishop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-NvAQYtytzNWy0d2y95f6Q1xVec-4n-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:271385741888:android:ff4d18d8e25555530b6da5",
+        "android_client_info": {
+          "package_name": "com.moegyi.shop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-NvAQYtytzNWy0d2y95f6Q1xVec-4n-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
