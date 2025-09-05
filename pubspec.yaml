@@ -16,10 +16,6 @@ dependencies:
   firebase_app_check: any
   image_picker: any
   firebase_storage: any
-  google_maps_flutter: any
-  geocoding: any
-  geolocator: any
-  permission_handler: any
 
 dev_dependencies:
   flutter_test:
