@@ -85,5 +85,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'moegyishop-820a2.firebasestorage.app',
     measurementId: 'G-3XXE6JDK2V',
   );
-
 }

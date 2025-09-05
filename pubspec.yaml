@@ -4,27 +4,27 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.18.0 <4.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  firebase_core:
-  firebase_auth:
-  cloud_firestore:
-  provider:
-  firebase_app_check:
-  image_picker:
-  firebase_storage:
-  google_maps_flutter:
-  geocoding:
-  geolocator:
-  permission_handler:
-  
+  firebase_core: any
+  firebase_auth: any
+  cloud_firestore: any
+  provider: any
+  firebase_app_check: any
+  image_picker: any
+  firebase_storage: any
+  google_maps_flutter: any
+  geocoding: any
+  geolocator: any
+  permission_handler: any
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  flutter_lints: any
 
 flutter:
   uses-material-design: true
