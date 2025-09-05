@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SignupScreenWithMap extends StatefulWidget {
   const SignupScreenWithMap({super.key});
@@ -38,7 +39,7 @@ class SignupScreenWithMapState extends State<SignupScreenWithMap> {
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
+    _getCurrentLocationWithPermissionHandler();
   }
 
   @override
@@ -53,40 +54,27 @@ class SignupScreenWithMapState extends State<SignupScreenWithMap> {
     super.dispose();
   }
 
-  Future<void> _getCurrentLocation() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
+  Future<void> _getCurrentLocationWithPermissionHandler() async {
+    var status = await Permission.location.request();
+    if (status.isGranted) {
+      final position = await Geolocator.getCurrentPosition();
+      setState(() {
+        _selectedLocation = LatLng(position.latitude, position.longitude);
+        _markers.add(
+          Marker(
+            markerId: const MarkerId('selectedLocation'),
+            position: _selectedLocation!,
+          ),
+        );
+      });
+      _mapController?.animateCamera(CameraUpdate.newLatLng(_selectedLocation!));
+      _getAddressFromLatLng(position.latitude, position.longitude);
+    } else if (status.isDenied) {
+      // Handle denied
+    } else if (status.isPermanentlyDenied) {
+      // Handle permanently denied
+      openAppSettings();
     }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
-
-    final position = await Geolocator.getCurrentPosition();
-    setState(() {
-      _selectedLocation = LatLng(position.latitude, position.longitude);
-      _markers.add(
-        Marker(
-          markerId: const MarkerId('selectedLocation'),
-          position: _selectedLocation!,
-        ),
-      );
-    });
-    _mapController?.animateCamera(CameraUpdate.newLatLng(_selectedLocation!));
-    _getAddressFromLatLng(position.latitude, position.longitude);
   }
 
   Future<void> _getAddressFromLatLng(double lat, double lng) async {
