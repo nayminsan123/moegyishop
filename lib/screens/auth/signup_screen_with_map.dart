@@ -217,7 +217,7 @@ class SignupScreenWithMapState extends State<SignupScreenWithMap> {
                       value!.isEmpty ? 'Please enter an address' : null,
                 ),
                 DropdownButtonFormField<String>(
-                  value: _selectedTownship,
+                  initialValue: _selectedTownship,
                   items: _townships.map((String township) {
                     return DropdownMenuItem<String>(
                       value: township,

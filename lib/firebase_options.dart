@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '271385741888',
     projectId: 'moegyishop-820a2',
     storageBucket: 'moegyishop-820a2.firebasestorage.app',
-    iosBundleId: 'com.example.moegyishop',
+    iosBundleId: 'com.moegyi.shop',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '271385741888',
     projectId: 'moegyishop-820a2',
     storageBucket: 'moegyishop-820a2.firebasestorage.app',
-    iosBundleId: 'com.example.moegyishop',
+    iosBundleId: 'com.moegyi.shop',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
